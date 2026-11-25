@@ -69,3 +69,14 @@ Copy `.env.example` to `.env.local` for local development. On Vercel, add them p
 
 ## 8. Things Cursor may ask you for
 Domain name, receipt text, confirmation of the *Assumptions* list at the end of `PRD.md`.
+
+## 9. Local sign-off (not production)
+The boxes in section 7 stay empty until the app is on the production domain. Local evidence so far:
+
+- Database checks for security tests 1–20 run in `supabase/tests/phase0.sql` through `phase5.sql`, the race scripts, and `supabase/tests/security-signoff.sql`. That last file checks RLS on every public table, anonymous reads, sales writes to money tables, the fourth video, an oversized video, and `service_role` being unable to edit `audit_logs`.
+- App checks cover the national ID, renamed media, CSV formula cells, route gates, `getUser()` instead of `getSession()`, and the service-role key staying in `lib/supabase/admin.ts`, `lib/env.ts`, and the seed script.
+- `npm audit` on 25 Nov 2026: 1 critical, 4 high, 3 moderate, 1 low. The patched versions that stay on the current Next.js 15 line were not installed because `npm install` failed in this environment (`edgesOut`). Do not jump to Next.js 16 just to clear the audit. `xlsx` has no fixed release; imports stay size-limited and formulas are not evaluated. `zod` should move to `4.6.7` or newer when install works. Vitest's critical advisory is the local UI server, which production does not run.
+- There is no committed `supabase/seed.dev.sql`. Reference categories and settings stay in the migrations.
+- Auth config keeps sign-up off and the password minimum at 10 characters. Security headers, including the content security policy, are set in `next.config.ts` and `vercel.json`.
+
+Production still needs these exact phrases, one at a time: `APPROVE PROD DB`, then `APPROVE PROD SEED`, then `APPROVE PROD DEPLOY`. Also log in once with `gh auth login`, `supabase login`, and `vercel login`.

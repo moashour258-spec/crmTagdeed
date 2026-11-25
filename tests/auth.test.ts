@@ -41,6 +41,10 @@ describe("phase 1 gates", () => {
     expect(destination("/payouts", { ...sales, profileCompleted: true })).toBe("/");
     expect(destination("/commissions/bulk", { ...sales, profileCompleted: true })).toBe("/");
     expect(destination("/account", { ...sales, profileCompleted: true })).toBeNull();
+    expect(destination("/reports", { ...sales, profileCompleted: true })).toBe("/");
+    expect(destination("/audit", { ...sales, profileCompleted: true })).toBe("/");
+    expect(destination("/print/invoice/1", { ...sales, profileCompleted: true })).toBeNull();
+    expect(destination("/reports", null)).toBe("/login");
   });
 
   it("lets the super admin in without blocking on private data", () => {

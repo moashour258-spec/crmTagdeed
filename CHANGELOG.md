@@ -1,5 +1,11 @@
 # Changelog
 
+## Phase 6 — Security sign-off (local)
+
+- Added the remaining database checks: RLS on every public table, anonymous reads, sales blocked from money and media writes, video limits, and an audit log that `service_role` cannot edit.
+- Content security policy is also sent by Vercel. Sign-up stays off and the password minimum is 10 characters.
+- Production checklist stays open. Deploying the production database still needs the owner's approval phrases.
+
 ## Phase 5 — Dashboards, reports, audit
 
 - The admin dashboard reads eleven figures and six breakdowns from one database call. Cancelled sales stay out of the totals.
