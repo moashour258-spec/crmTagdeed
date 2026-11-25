@@ -56,7 +56,11 @@
     "copied": "تم النسخ",
     "passwordTooShort": "كلمة المرور يجب ألا تقل عن 10 أحرف",
     "passwordChanged": "تم تغيير كلمة المرور",
-    "signedOutOthers": "تم تسجيل الخروج من الأجهزة الأخرى"
+    "signedOutOthers": "تم تسجيل الخروج من الأجهزة الأخرى",
+    "invalidCredentials": "البريد أو كلمة المرور غير صحيحة",
+    "devNotConnected": "مشروع سوبربيز للتطوير غير مربوط بعد. أضف مفاتيح البيئة ثم أعد التشغيل.",
+    "resetSent": "إن كان البريد مدعواً، ستصله رسالة إعادة التعيين",
+    "savePassword": "حفظ كلمة المرور"
   },
   "profile": {
     "fullName": "الاسم بالكامل",
@@ -295,6 +299,7 @@
   },
   "notifications": {
     "title": "الإشعارات",
+    "empty": "لا توجد إشعارات",
     "priceApproved": "تمت الموافقة على سعر البيع",
     "priceRejected": "تم رفض طلب السعر",
     "commissionApproved": "تم اعتماد عمولتك",

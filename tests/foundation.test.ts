@@ -46,7 +46,10 @@ describe("foundation", () => {
 
   it("keeps the service-role client inside the admin module", () => {
     const files = walk(".").filter(
-      (file) => !file.endsWith("lib/supabase/admin.ts") && !file.endsWith("scripts/seed-super-admin.ts"),
+      (file) =>
+        !file.endsWith("lib/supabase/admin.ts") &&
+        !file.endsWith("lib/auth/admin-users.ts") &&
+        !file.endsWith("scripts/seed-super-admin.ts"),
     );
     const offenders = files.filter((file) =>
       /from ["']@\/lib\/supabase\/admin["']/.test(readFileSync(file, "utf8")),

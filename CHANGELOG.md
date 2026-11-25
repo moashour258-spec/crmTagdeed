@@ -1,5 +1,13 @@
 # Changelog
 
+## Phase 1 — Auth, gates, users
+
+- Email and password login, password reset, forced password change, disabled account, and profile completion with encrypted national ID.
+- Middleware sends each session to the right gate. Sales navigation hides admin pages.
+- Admins add users by invitation, random password, or custom password. Password values are shown once and are not written to the audit log.
+- Notification bell reads the signed-in user's own rows.
+- SQL checks cover anonymous access, locked and inactive sessions, admin boundaries, and password actions.
+
 ## Phase 0 — Foundation
 
 - Next.js app in Arabic, RTL, with Cairo, light/dark/system themes, and the تجديد shell.

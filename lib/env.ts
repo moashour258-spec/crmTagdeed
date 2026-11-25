@@ -12,6 +12,21 @@ const serverSchema = publicSchema.extend({
   NATIONAL_ID_HASH_KEY: z.string().min(1),
 });
 
+export function hasPublicEnv() {
+  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+}
+
+export function hasServerEnv() {
+  return (
+    hasPublicEnv() &&
+    Boolean(
+      process.env.SUPABASE_SERVICE_ROLE_KEY &&
+        process.env.NATIONAL_ID_ENCRYPTION_KEY &&
+        process.env.NATIONAL_ID_HASH_KEY,
+    )
+  );
+}
+
 export function getPublicEnv() {
   return publicSchema.parse({
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,

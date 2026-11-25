@@ -15,3 +15,10 @@ export const navItems = [
 ] as const;
 
 export const sectionKeys = new Set(navItems.map((item) => item.href.slice(1)).filter(Boolean));
+
+const salesHrefs = new Set(["/", "/account"]);
+
+export function navForRole(role: "admin" | "sales" | null) {
+  if (role === "sales") return navItems.filter((item) => salesHrefs.has(item.href));
+  return navItems;
+}

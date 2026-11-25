@@ -48,6 +48,12 @@ const eslintConfig = [
       ],
     },
   },
+  {
+    files: ["lib/auth/admin-users.ts"],
+    rules: {
+      "no-restricted-imports": "off",
+    },
+  },
 ];
 
 export default eslintConfig;

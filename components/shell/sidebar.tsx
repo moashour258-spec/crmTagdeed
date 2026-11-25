@@ -4,12 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Logo } from "@/components/shared/logo";
-import { navItems } from "@/components/shell/nav";
+import { navForRole } from "@/components/shell/nav";
 import { cn } from "@/lib/utils";
 
-export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
+export function Sidebar({
+  onNavigate,
+  role = "admin",
+}: {
+  onNavigate?: () => void;
+  role?: "admin" | "sales" | null;
+}) {
   const pathname = usePathname();
   const t = useTranslations("nav");
+  const items = navForRole(role);
 
   return (
     <nav className="flex h-full flex-col gap-2 bg-sidebar p-3 text-on-primary">
@@ -17,7 +24,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         <Logo />
         <span className="text-sm leading-5 text-on-primary">لأدوات منزلية مستعملة</span>
       </Link>
-      {navItems.map((item) => {
+      {items.map((item) => {
         const active = pathname === item.href;
         return (
           <Link
