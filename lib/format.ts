@@ -18,3 +18,13 @@ export function formatMoney(value: number) {
 export function formatDateTime(value: Date) {
   return dateTime.format(value);
 }
+
+const day = new Intl.DateTimeFormat("ar-EG", {
+  numberingSystem: "latn",
+  timeZone: "Africa/Cairo",
+  dateStyle: "medium",
+});
+
+export function formatDate(value: Date) {
+  return day.format(value);
+}

@@ -50,6 +50,17 @@ describe("catalog", () => {
       6000,
     );
     expect(exact.map((item) => item.price)).toEqual([1000, 2000, 3000]);
+
+    const up = distributeTotal(
+      [
+        { key: "a", listPrice: 1000 },
+        { key: "b", listPrice: 2000 },
+        { key: "c", listPrice: 3000 },
+      ],
+      7000,
+    );
+    expect(up.map((item) => item.price)).toEqual([1166, 2333, 3501]);
+    expect(up.reduce((sum, item) => sum + item.price, 0)).toBe(7000);
   });
 
   it("names the item when a price is too low and hides the floor", () => {

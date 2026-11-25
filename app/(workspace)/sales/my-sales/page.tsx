@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CorrectionForm } from "@/components/sales/correction-form";
 import { EmptyState } from "@/components/ui/empty-state";
 import { hasPublicEnv } from "@/lib/env";
-import { formatDateTime, formatMoney } from "@/lib/format";
+import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function MySalesPage() {
@@ -12,9 +12,19 @@ export default async function MySalesPage() {
   const supabase = await createClient();
   const { data: sales } = await supabase
     .from("v_my_sales")
-    .select("id, invoice_no, customer_name, customer_phone, payment_method, total_price, sold_at, status")
+    .select("id, invoice_no, customer_name, customer_phone, payment_method, total_price, sold_at, status, delivery_status")
     .order("sold_at", { ascending: false })
     .limit(40);
+  const ids = (sales ?? []).map((sale) => sale.id);
+  const [{ data: payments }, { data: installments }] = await Promise.all([
+    ids.length ? supabase.from("sale_payment_summary").select("sale_id, payment_status, balance").in("sale_id", ids) : Promise.resolve({ data: [] }),
+    ids.length ? supabase.from("installment_status").select("sale_id, seq, due_date, amount, status").in("sale_id", ids).order("seq") : Promise.resolve({ data: [] }),
+  ]);
+  const paymentBySale = new Map((payments ?? []).map((row) => [row.sale_id, row]));
+  const planBySale = new Map<string, NonNullable<typeof installments>>();
+  for (const row of installments ?? []) {
+    planBySale.set(row.sale_id, [...(planBySale.get(row.sale_id) ?? []), row]);
+  }
 
   return (
     <div className="grid gap-3">
@@ -30,6 +40,17 @@ export default async function MySalesPage() {
               <p className="text-xs text-muted">{formatDateTime(new Date(sale.sold_at))}</p>
             </div>
           </div>
+          <p className="text-sm text-muted">
+            {sale.status === "cancelled" ? "ملغاة" : "مكتملة"}
+            {" · "}
+            {paymentBySale.get(sale.id)?.payment_status === "paid" ? "مدفوعة" : paymentBySale.get(sale.id)?.payment_status === "partial" ? "مدفوعة جزئيًا" : "غير مدفوعة"}
+            {sale.delivery_status ? ` · التسليم: ${sale.delivery_status === "delivered" ? "تم" : sale.delivery_status === "scheduled" ? "مجدول" : sale.delivery_status === "pickup" ? "استلام" : "في الانتظار"}` : ""}
+          </p>
+          {(planBySale.get(sale.id) ?? []).map((row) => (
+            <p key={`${row.sale_id}-${row.seq}`} className="text-sm text-muted">
+              قسط {row.seq} · {formatDate(new Date(row.due_date))} · {formatMoney(Number(row.amount))} · {row.status === "paid" ? "مدفوع" : row.status === "overdue" ? "متأخر" : row.status === "partial" ? "جزئي" : "قادم"}
+            </p>
+          ))}
           <div className="flex flex-wrap items-center gap-3">
             <Link href={`/print/invoice/${sale.id}`} className="text-sm underline">طباعة الفاتورة</Link>
             <CorrectionForm saleId={sale.id} />

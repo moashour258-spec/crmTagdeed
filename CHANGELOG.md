@@ -1,5 +1,13 @@
 # Changelog
 
+## Phase 4A — Payments, installments, delivery
+
+- Admins record payments and refunds. A receipt number is issued, and the net paid stays inside the invoice total.
+- Installment status is calculated from the payments in order: paid, partial, overdue, or upcoming. A refund moves that status back.
+- Cancelling an item requires a refund when the customer has paid more than the new total. The last item cancels the invoice and returns the piece.
+- Delivery updates, late deliveries, and paid-but-undelivered sales show in the admin inbox. Sales see their own payment and delivery status only.
+- Payment rows cannot be edited or deleted.
+
 ## Phase 3 — Sales
 
 - A salesperson sees the public catalog, reserves a piece, asks for a price, and sells from a basket of up to ten lines.

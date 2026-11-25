@@ -26,6 +26,12 @@ export function arabicError(error: { message?: string; code?: string } | null | 
   if (message.includes("set_partially_sold")) return "لا يمكن بيع الطقم كاملًا بعد بيع قطعة منه";
   if (message.includes("invalid_payment_method")) return "طريقة الدفع غير معروفة";
   if (message.includes("customer_required")) return "اسم العميل ورقم هاتفه مطلوبان";
+  if (message.includes("payment_out_of_range")) return "المبلغ يجعل الصافي خارج إجمالي الفاتورة";
+  if (message.includes("future_payment_date")) return "تاريخ الدفع لا يمكن أن يكون في المستقبل";
+  if (message.includes("refund_required")) return "المدفوع أكبر من الإجمالي الجديد، وسجّل مبلغ الاسترداد";
+  if (message.includes("refund_amount_mismatch")) return "مبلغ الاسترداد لا يساوي الزيادة";
+  if (message.includes("sale_payments_append_only")) return "إيصالات الدفع لا تُعدّل ولا تُحذف";
+  if (message.includes("plan_total_mismatch")) return "مجموع الأقساط يجب أن يساوي إجمالي الفاتورة";
   if (message.includes("forbidden") || message.includes("not_active") || error?.code === "42501") {
     return "غير مسموح لك بهذا الإجراء";
   }

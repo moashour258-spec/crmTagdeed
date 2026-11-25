@@ -12,7 +12,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
   const supabase = await createClient();
   const { data: sale } = await supabase
     .from("v_my_sales")
-    .select("id, invoice_no, customer_name, customer_phone, customer_address, payment_method, total_price, sold_at")
+    .select("id, invoice_no, customer_name, customer_phone, customer_address, payment_method, total_price, sold_at, status, delivery_status")
     .eq("id", id)
     .maybeSingle();
   if (!sale) notFound();
@@ -25,7 +25,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
     <main className="mx-auto grid max-w-3xl gap-6 px-4 py-8" dir="rtl">
       <header className="grid gap-1">
         <p className="text-sm text-muted">تجديد</p>
-        <h1 className="text-2xl font-semibold">{sale.invoice_no}</h1>
+        <h1 className="text-2xl font-semibold">{sale.invoice_no}{sale.status === "cancelled" ? " · ملغاة" : ""}</h1>
         <p className="text-sm text-muted">{formatDateTime(new Date(sale.sold_at))}</p>
       </header>
       <section className="grid gap-1 text-sm">
@@ -33,6 +33,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
         <p>الهاتف: {sale.customer_phone}</p>
         {sale.customer_address ? <p>العنوان: {sale.customer_address}</p> : null}
         <p>طريقة الدفع: {sale.payment_method}</p>
+        {sale.delivery_status ? <p>التسليم: {sale.delivery_status === "delivered" ? "تم التسليم" : sale.delivery_status === "scheduled" ? "مجدول" : sale.delivery_status === "pickup" ? "استلام من المعرض" : "في الانتظار"}</p> : null}
       </section>
       <table className="w-full border-collapse text-sm">
         <thead>
