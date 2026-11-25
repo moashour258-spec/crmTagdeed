@@ -1,5 +1,13 @@
 # Changelog
 
+## Phase 2 — Catalog
+
+- Stores can be added, deactivated, and their available stock moved without changing product codes.
+- Categories stay on two levels and can be reordered.
+- Products are created inactive, with a live commission example, duplication, and image or video upload that checks the file bytes.
+- Spreadsheet import previews bad rows and saves only the valid ones through one database call.
+- Sales still cannot read stores, products, or media.
+
 ## Phase 1 — Auth, gates, users
 
 - Email and password login, password reset, forced password change, disabled account, and profile completion with encrypted national ID.

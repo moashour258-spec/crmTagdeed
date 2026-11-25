@@ -14,4 +14,5 @@ for file in "$root"/supabase/migrations/*.sql; do
 done
 "${psql[@]}" -f "$root/supabase/tests/phase0.sql"
 "${psql[@]}" -f "$root/supabase/tests/phase1.sql"
-echo "phase 0 and phase 1 database checks passed"
+"${psql[@]}" -f "$root/supabase/tests/phase2.sql"
+echo "phase 0, 1, and 2 database checks passed"
