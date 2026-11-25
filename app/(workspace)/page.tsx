@@ -23,12 +23,11 @@ export default async function DashboardPage() {
       </section>
       <DataTable
         columns={[
-          { key: "invoice", header: "الفاتورة", cell: () => "" },
-          { key: "customer", header: "العميل", cell: () => "" },
-          { key: "total", header: "الإجمالي", cell: () => "" },
+          { key: "invoice", header: "الفاتورة" },
+          { key: "customer", header: "العميل" },
+          { key: "total", header: "الإجمالي" },
         ]}
         rows={[]}
-        getRowKey={() => "empty"}
         page={1}
         pageSize={20}
         total={0}

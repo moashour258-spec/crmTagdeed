@@ -3,35 +3,35 @@
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 
-export type Column<T> = {
+export type Column = {
   key: string;
   header: string;
-  cell: (row: T) => string;
 };
 
-type DataTableProps<T> = {
-  columns: Column<T>[];
-  rows: T[];
-  getRowKey: (row: T) => string;
+export type TableRow = {
+  id: string;
+  cells: Record<string, string>;
+};
+
+type DataTableProps = {
+  columns: Column[];
+  rows: TableRow[];
   page: number;
   pageSize: number;
   total: number;
-  onPageChange?: (page: number) => void;
   emptyTitle: string;
   emptyBody?: string;
 };
 
-export function DataTable<T>({
+export function DataTable({
   columns,
   rows,
-  getRowKey,
   page,
   pageSize,
   total,
-  onPageChange,
   emptyTitle,
   emptyBody,
-}: DataTableProps<T>) {
+}: DataTableProps) {
   const pages = Math.max(1, Math.ceil(total / pageSize));
   if (rows.length === 0) {
     return <EmptyState title={emptyTitle} body={emptyBody} />;
@@ -52,10 +52,10 @@ export function DataTable<T>({
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={getRowKey(row)} className="border-t border-border hover:bg-surface-2">
+              <tr key={row.id} className="border-t border-border hover:bg-surface-2">
                 {columns.map((column) => (
                   <td key={column.key} className="px-3 py-2 tabular-nums">
-                    {column.cell(row)}
+                    {row.cells[column.key] ?? ""}
                   </td>
                 ))}
               </tr>
@@ -65,11 +65,11 @@ export function DataTable<T>({
       </div>
       <div className="grid gap-3 p-3 md:hidden">
         {rows.map((row) => (
-          <article key={getRowKey(row)} className="rounded-xl border border-border bg-surface p-3">
+          <article key={row.id} className="rounded-xl border border-border bg-surface p-3">
             {columns.map((column) => (
               <p key={column.key} className="flex justify-between gap-3 py-1 text-sm">
                 <span className="text-muted">{column.header}</span>
-                <span className="tabular-nums">{column.cell(row)}</span>
+                <span className="tabular-nums">{row.cells[column.key] ?? ""}</span>
               </p>
             ))}
           </article>
@@ -80,10 +80,10 @@ export function DataTable<T>({
           {page} / {pages}
         </span>
         <div className="flex gap-2">
-          <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => onPageChange?.(page - 1)}>
+          <Button variant="secondary" size="sm" disabled={page <= 1}>
             السابق
           </Button>
-          <Button variant="secondary" size="sm" disabled={page >= pages} onClick={() => onPageChange?.(page + 1)}>
+          <Button variant="secondary" size="sm" disabled={page >= pages}>
             التالي
           </Button>
         </div>

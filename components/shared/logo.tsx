@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 export function Logo({ compact = false, className }: { compact?: boolean; className?: string }) {
   return (
-    <span className="inline-flex rounded-xl bg-logo-badge p-1">
+    <span className="inline-flex rounded-xl border border-border bg-logo-badge p-1">
       <Image
         src="/logo.jpg"
         alt="تجديد"
