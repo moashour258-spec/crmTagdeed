@@ -1,5 +1,13 @@
 # Changelog
 
+## Phase 5 — Dashboards, reports, audit
+
+- The admin dashboard reads eleven figures and six breakdowns from one database call. Cancelled sales stay out of the totals.
+- A salesperson sees only their own sold pieces, revenue, commission, and recent invoices.
+- The approvals inbox shows live counts for prices, commissions, installments, deliveries, and correction requests.
+- CSV exports use UTF-8 and keep formula-looking cells as text. Sales can export only their own invoices.
+- The audit page filters events and shows the before and after values. A regular admin does not see restricted rows.
+
 ## Phase 4B — Commissions and bonuses
 
 - Bonus rules need a price range or a product, category, or store. Active rules stack, then the stricter cap scales the lines.

@@ -28,6 +28,7 @@ export default async function MySalesPage() {
 
   return (
     <div className="grid gap-3">
+      <Link href="/sales/my-sales/export" className="text-sm underline">تصدير مبيعاتي</Link>
       {(sales ?? []).map((sale) => (
         <article key={sale.id} className="grid gap-3 rounded-xl border border-border bg-surface p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">

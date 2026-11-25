@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { DecisionForm } from "@/components/sales/decision-form";
 import { EmptyState } from "@/components/ui/empty-state";
+import { StatCard } from "@/components/ui/stat-card";
 import { hasPublicEnv } from "@/lib/env";
 import { formatDate, formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
@@ -21,19 +22,34 @@ export default async function ApprovalsPage() {
     : { data: [] };
   const names = new Map((products ?? []).map((product) => [product.id, product]));
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Cairo" }).format(new Date());
-  const [{ data: review }, { data: overdue }, { data: late }, { data: paid }] = await Promise.all([
-    supabase.from("sales").select("id, invoice_no, customer_name").eq("installments_need_review", true).eq("status", "completed"),
-    supabase.from("installment_status").select("id, sale_id, due_date, amount").eq("status", "overdue").limit(30),
-    supabase.from("sales").select("id, invoice_no, customer_name, delivery_date").eq("status", "completed").eq("delivery_status", "scheduled").lt("delivery_date", today),
+  const [{ data: review, count: reviewCount }, { data: overdue, count: overdueCount }, { data: late, count: lateCount }, { data: paid }, { count: pendingCommissions }, { count: corrections }] = await Promise.all([
+    supabase.from("sales").select("id, invoice_no, customer_name", { count: "exact" }).eq("installments_need_review", true).eq("status", "completed"),
+    supabase.from("installment_status").select("id, sale_id, due_date, amount", { count: "exact" }).eq("status", "overdue").limit(30),
+    supabase.from("sales").select("id, invoice_no, customer_name, delivery_date", { count: "exact" }).eq("status", "completed").eq("delivery_status", "scheduled").lt("delivery_date", today),
     supabase.from("sale_payment_summary").select("sale_id").eq("payment_status", "paid").limit(40),
+    supabase.from("commissions").select("id", { count: "exact", head: true }).eq("status", "pending").eq("kind", "earning"),
+    supabase.from("notifications").select("id", { count: "exact", head: true }).eq("type", "sale_correction").is("read_at", null),
   ]);
   const paidIds = (paid ?? []).map((row) => row.sale_id);
   const { data: undelivered } = paidIds.length
     ? await supabase.from("sales").select("id, invoice_no, customer_name, delivery_status").in("id", paidIds).eq("status", "completed").not("delivery_status", "in", "(delivered,pickup)")
     : { data: [] };
 
+  const counts = [
+    ["طلبات سعر", requests?.length ?? 0],
+    ["عمولات قيد الاعتماد", pendingCommissions ?? 0],
+    ["أقساط متأخرة", overdueCount ?? 0],
+    ["خطط تحتاج مراجعة", reviewCount ?? 0],
+    ["تسليم متأخر", lateCount ?? 0],
+    ["مدفوع ولم يُسلّم", undelivered?.length ?? 0],
+    ["طلبات تصحيح", corrections ?? 0],
+  ] as const;
+
   return (
     <div className="grid gap-6">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {counts.map(([label, value]) => <StatCard key={label} label={label} value={String(value)} />)}
+      </section>
       {(requests ?? []).map((request) => {
         const product = names.get(request.product_id);
         return (
