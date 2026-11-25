@@ -1,0 +1,10 @@
+---
+description: Tajdeed CRM working rules
+alwaysApply: true
+---
+
+- Build one phase from BUILD_PLAN.md at a time. Arabic copy comes from i18n/ar.json. RTL only; use ms-/me-, never ml-/mr-.
+- Money, permissions, and statuses are decided in Postgres. Do not calculate them in the client.
+- The service-role client lives only in lib/supabase/admin.ts.
+- Never commit secrets. .env.example is the only env file that belongs in git.
+- Overlays use flex or logical inset. Do not center them with translate or left/right.

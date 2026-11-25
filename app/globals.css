@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7fdfd;
+  --surface: #ffffff;
+  --surface-2: #e8f6f9;
+  --border: #d5e6ec;
+  --foreground: #10324d;
+  --muted: #5b7184;
+  --sidebar: #10324d;
+  --primary: #2f67b8;
+  --primary-hover: #2a5ca8;
+  --on-primary: #ffffff;
+  --link: #2f67b8;
+  --accent: #4ec1d3;
+  --success: #16a34a;
+  --warning: #b45309;
+  --danger: #dc2626;
+  --ring: #2f67b8;
+  --logo-badge: #ffffff;
+  color-scheme: light;
+}
+
+.dark {
+  --background: #0b1b2b;
+  --surface: #11273b;
+  --surface-2: #16324a;
+  --border: #24425c;
+  --foreground: #e6eef5;
+  --muted: #9fb3c5;
+  --sidebar: #08141f;
+  --primary: #2f67b8;
+  --primary-hover: #3b77cc;
+  --on-primary: #ffffff;
+  --link: #7fb0f5;
+  --accent: #4ec1d3;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --ring: #7fb0f5;
+  --logo-badge: #ffffff;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-sidebar: var(--sidebar);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
+  --color-link: var(--link);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-logo-badge: var(--logo-badge);
+  --color-brand-navy: #10324d;
+  --color-brand-blue: #397ad2;
+  --color-brand-blue-600: #2f67b8;
+  --color-brand-blue-700: #2a5ca8;
+  --color-brand-teal: #4ec1d3;
+  --color-brand-cyan: #7edae4;
+  --color-brand-tint: #e8f6f9;
+  --color-brand-surface: #f7fdfd;
+  --font-sans: var(--font-cairo), system-ui, "Segoe UI", Tahoma, sans-serif;
+  --shadow-card: 0 1px 2px rgba(16, 50, 77, 0.06), 0 4px 16px rgba(16, 50, 77, 0.06);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
