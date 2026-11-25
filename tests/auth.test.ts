@@ -36,6 +36,10 @@ describe("phase 1 gates", () => {
     expect(destination("/sales", { ...sales, profileCompleted: true })).toBe("/");
     expect(destination("/sales/catalog", { ...sales, profileCompleted: true })).toBeNull();
     expect(destination("/sales/cart", { ...sales, profileCompleted: true })).toBeNull();
+    expect(destination("/sales/earnings", { ...sales, profileCompleted: true })).toBeNull();
+    expect(destination("/bonuses", { ...sales, profileCompleted: true })).toBe("/");
+    expect(destination("/payouts", { ...sales, profileCompleted: true })).toBe("/");
+    expect(destination("/commissions/bulk", { ...sales, profileCompleted: true })).toBe("/");
     expect(destination("/account", { ...sales, profileCompleted: true })).toBeNull();
   });
 

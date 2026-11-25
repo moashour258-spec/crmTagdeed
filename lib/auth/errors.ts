@@ -31,6 +31,16 @@ export function arabicError(error: { message?: string; code?: string } | null | 
   if (message.includes("refund_required")) return "المدفوع أكبر من الإجمالي الجديد، وسجّل مبلغ الاسترداد";
   if (message.includes("refund_amount_mismatch")) return "مبلغ الاسترداد لا يساوي الزيادة";
   if (message.includes("sale_payments_append_only")) return "إيصالات الدفع لا تُعدّل ولا تُحذف";
+  if (message.includes("override_required")) return "الفاتورة لم تُحصّل بالكامل، واكتب سبب الاعتماد";
+  if (message.includes("sale_cancelled")) return "لا يمكن اعتماد عمولة فاتورة ملغاة";
+  if (message.includes("commission_not_pending")) return "هذه العمولة ليست قيد الاعتماد";
+  if (message.includes("nothing_to_pay")) return "لا توجد عمولات معتمدة لهذا الموظف";
+  if (message.includes("negative_payout")) return "الاستردادات أكبر من العمولات المعتمدة، ويُرحّل الفرق";
+  if (message.includes("no_matches")) return "لا توجد قطع مطابقة لهذا التعديل";
+  if (message.includes("already_undone")) return "تم التراجع عن هذه الدفعة من قبل";
+  if (message.includes("invalid_commission") || message.includes("invalid_bonus")) return "قيمة العمولة أو البونص غير صحيحة";
+  if (message.includes("filters_required")) return "حدد قطعاً أو مرشحاً قبل التطبيق";
+  if (message.includes("bonus_scope_required")) return "البونص يحتاج نطاقاً: سعراً أو قطعة أو فئة أو مخزناً";
   if (message.includes("plan_total_mismatch")) return "مجموع الأقساط يجب أن يساوي إجمالي الفاتورة";
   if (message.includes("forbidden") || message.includes("not_active") || error?.code === "42501") {
     return "غير مسموح لك بهذا الإجراء";

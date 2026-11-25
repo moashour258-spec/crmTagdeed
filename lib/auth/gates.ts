@@ -20,12 +20,14 @@ const adminPaths = [
   "/sales",
   "/deliveries",
   "/commissions",
+  "/bonuses",
+  "/payouts",
   "/reports",
   "/audit",
   "/settings",
 ];
 
-const salesPaths = ["/sales/catalog", "/sales/cart", "/sales/my-sales", "/print"];
+const salesPaths = ["/sales/catalog", "/sales/cart", "/sales/my-sales", "/sales/earnings", "/print"];
 
 function isAdminPath(pathname: string) {
   if (salesPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`))) return false;

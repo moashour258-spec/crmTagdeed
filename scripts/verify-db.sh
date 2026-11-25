@@ -19,4 +19,6 @@ done
 bash "$root/scripts/phase3-race.sh"
 "${psql[@]}" -f "$root/supabase/tests/phase4.sql"
 bash "$root/scripts/phase4-race.sh"
-echo "phase 0 through 4A database checks passed"
+"${psql[@]}" -f "$root/supabase/tests/phase4b.sql"
+bash "$root/scripts/phase4b-race.sh"
+echo "phase 0 through 4B database checks passed"

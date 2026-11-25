@@ -1,5 +1,13 @@
 # Changelog
 
+## Phase 4B — Commissions and bonuses
+
+- Bonus rules need a price range or a product, category, or store. Active rules stack, then the stricter cap scales the lines.
+- Admins approve pending commissions after the invoice is paid, or with a written reason. A cancelled invoice is refused.
+- A payout locks one employee's approved commissions and clawbacks, stores one payment, and leaves a negative net for the next payout.
+- Bulk commission edits are a snapshot. Undo restores only rows that still hold the value that batch wrote.
+- Sales see their own base, bonus, total, and status. An unpaid invoice stays "بانتظار تحصيل العميل".
+
 ## Phase 4A — Payments, installments, delivery
 
 - Admins record payments and refunds. A receipt number is issued, and the net paid stays inside the invoice total.
