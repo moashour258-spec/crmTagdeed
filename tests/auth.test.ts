@@ -33,6 +33,9 @@ describe("phase 1 gates", () => {
     const sales = { ...active, role: "sales" as const, profileCompleted: false };
     expect(destination("/", sales)).toBe("/complete-profile");
     expect(destination("/users", { ...sales, profileCompleted: true })).toBe("/");
+    expect(destination("/sales", { ...sales, profileCompleted: true })).toBe("/");
+    expect(destination("/sales/catalog", { ...sales, profileCompleted: true })).toBeNull();
+    expect(destination("/sales/cart", { ...sales, profileCompleted: true })).toBeNull();
     expect(destination("/account", { ...sales, profileCompleted: true })).toBeNull();
   });
 

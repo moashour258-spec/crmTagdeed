@@ -18,7 +18,9 @@ export function WorkspaceFrame({
   const pathname = usePathname();
   const t = useTranslations("nav");
   const messages = useTranslations("messages");
-  const item = navItems.find((entry) => entry.href === pathname);
+  const item = [...navItems]
+    .sort((a, b) => b.href.length - a.href.length)
+    .find((entry) => (entry.href === "/" ? pathname === "/" : pathname === entry.href || pathname.startsWith(`${entry.href}/`)));
   const title = item ? t(item.key) : pathname === "/" ? t("dashboard") : messages("notFound");
   return (
     <AppShell title={title} role={role} notices={notices}>

@@ -1,5 +1,14 @@
 # Changelog
 
+## Phase 3 — Sales
+
+- A salesperson sees the public catalog, reserves a piece, asks for a price, and sells from a basket of up to ten lines.
+- An agreed total is split into whole pounds, with the leftover pound on the highest list price.
+- A price under the floor is rejected and the message names the piece without revealing the floor.
+- Two competing reservations or sales cannot both win. A sold piece of a set blocks selling the whole set.
+- Salespeople cannot read another seller's invoices, commissions, or private profile, and cannot write financial tables directly.
+- The invoice print shows the customer and the public codes only.
+
 ## Phase 2 — Catalog
 
 - Stores can be added, deactivated, and their available stock moved without changing product codes.

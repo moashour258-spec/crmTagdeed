@@ -16,6 +16,16 @@ export function arabicError(error: { message?: string; code?: string } | null | 
     return "برجاء مراجعة البيانات المدخلة";
   }
   if (message.includes("not_found")) return "السجل غير موجود";
+  const belowMinimum = message.match(/price_below_minimum:([^0-9]*)/);
+  if (belowMinimum) {
+    const name = belowMinimum[1].replace(/[0-9.]/g, "").trim();
+    return name ? `سعر «${name}» أقل من الحد المسموح` : "السعر أقل من الحد المسموح";
+  }
+  if (message.includes("unit_unavailable")) return "القطعة غير متاحة الآن";
+  if (message.includes("reservation_cap")) return "وصلت للحد الأقصى للحجوزات النشطة";
+  if (message.includes("set_partially_sold")) return "لا يمكن بيع الطقم كاملًا بعد بيع قطعة منه";
+  if (message.includes("invalid_payment_method")) return "طريقة الدفع غير معروفة";
+  if (message.includes("customer_required")) return "اسم العميل ورقم هاتفه مطلوبان";
   if (message.includes("forbidden") || message.includes("not_active") || error?.code === "42501") {
     return "غير مسموح لك بهذا الإجراء";
   }

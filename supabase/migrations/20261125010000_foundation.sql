@@ -28,6 +28,8 @@ begin
   end if;
 end $$;
 
+grant usage on schema auth to anon, authenticated, service_role;
+
 create schema if not exists private;
 revoke all on schema private from public;
 grant usage on schema private to anon, authenticated, service_role;
