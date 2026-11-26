@@ -3,6 +3,16 @@ export function arabicError(error: { message?: string; code?: string } | null | 
   if (message.includes("password_too_short") || message.includes("Password should be at least")) {
     return "كلمة المرور يجب ألا تقل عن 10 أحرف";
   }
+  if (
+    message.includes("different from the old password") ||
+    message.includes("same_password") ||
+    message.includes("should be different")
+  ) {
+    return "كلمة المرور الجديدة يجب أن تختلف عن الحالية";
+  }
+  if (message.includes("weak") || message.includes("easy to guess") || message.includes("pwned")) {
+    return "كلمة المرور ضعيفة أو معروفة، اختر واحدة أقوى أو اضغط توليد";
+  }
   if (message.includes("last_admin")) return "لا يمكن تعطيل آخر مدير نشط";
   if (message.includes("super_admin_immutable")) return "لا يمكن تعديل المدير العام";
   if (message.includes("Invalid login credentials")) return "البريد أو كلمة المرور غير صحيحة";
