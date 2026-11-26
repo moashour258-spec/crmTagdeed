@@ -7,7 +7,9 @@ import { parseImportFile } from "@/lib/catalog/parse-sheet";
 import { hasPublicEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
-export type ActionResult = { ok: true; id?: string } | { ok: false; error: string };
+export type ActionResult =
+  | { ok: true; id?: string; activated?: boolean }
+  | { ok: false; error: string };
 
 const offlineError = "مشروع سوبربيز للتطوير غير مربوط بعد. أضف مفاتيح البيئة ثم أعد التشغيل.";
 const offline: ActionResult = { ok: false, error: offlineError };
@@ -246,5 +248,6 @@ export async function confirmUploadAction(input: {
     await supabase.storage.from(input.bucket).remove([input.path]);
     return { ok: false as const, error: arabicError(error) };
   }
-  return { ok: true as const };
+  // First image auto-activates inactive products in register_product_media.
+  return { ok: true as const, activated: detected.kind === "image" };
 }

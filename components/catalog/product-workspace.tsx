@@ -180,9 +180,11 @@ export function ProductWorkspace({
         {product.status === "inactive" ? (
           <p className="text-sm text-danger">
             {imageCount === 0
-              ? "المنتج غير مفعّل. ارفع صورة ثم اضغط «تفعيل للبيع»."
-              : "المنتج جاهز للصورة. اضغط «تفعيل للبيع» ليظهر في الكتالوج."}
+              ? "المنتج غير مفعّل. ارفع صورة وسيظهر تلقائيًا لحسابات المبيعات."
+              : "ارفع صورة أو اضغط «تفعيل للبيع» ليظهر لحسابات المبيعات."}
           </p>
+        ) : product.status === "available" ? (
+          <p className="text-sm text-success">ظاهر للمبيعات في «المنتجات المتاحة».</p>
         ) : null}
       </section>
 

@@ -83,7 +83,13 @@ export function ProductTools({
       }
       if (kind === "image") imageCount += 1;
       else videoCount += 1;
-      toast.push({ title: `تم رفع ${file.name}`, tone: "success" });
+      toast.push({
+        title:
+          "activated" in confirmed && confirmed.activated
+            ? `تم رفع ${file.name} وتفعيل المنتج للبيع`
+            : `تم رفع ${file.name}`,
+        tone: "success",
+      });
     }
     setProgress(null);
     router.refresh();

@@ -30,11 +30,25 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const supabase = await createClient();
 
   if (gate?.role === "sales") {
-    const { data, error } = await supabase.rpc("fn_my_dashboard", { p_from: range.from, p_to: range.to });
+    const [{ data, error }, { count: availableCount }] = await Promise.all([
+      supabase.rpc("fn_my_dashboard", { p_from: range.from, p_to: range.to }),
+      supabase.from("v_catalog").select("public_code", { count: "exact", head: true }),
+    ]);
     if (error) return <EmptyState title="أرباحي" body={arabicError(error)} />;
     const stats = parseSalesStats(data);
     return (
       <div className="grid gap-6">
+        <a
+          href="/sales/catalog"
+          className="rounded-xl border border-border bg-surface p-4 transition-colors hover:bg-surface-2"
+        >
+          <p className="font-semibold">المنتجات المتاحة للبيع</p>
+          <p className="mt-1 text-sm text-muted">
+            {(availableCount ?? 0) > 0
+              ? `فيه ${availableCount} منتج جاهز — اضغط للعرض والحجز أو الإضافة للسلة.`
+              : "لا توجد منتجات متاحة الآن. لما المدير يفعّل منتجًا هيظهر هنا."}
+          </p>
+        </a>
         <FilterForm preset={preset} from={one(params.from)} to={one(params.to)} />
         <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <StatCard label="قطع مباعة" value={String(stats.productsSold)} />
