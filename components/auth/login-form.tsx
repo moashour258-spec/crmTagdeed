@@ -1,24 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { AuthCard } from "@/components/auth/auth-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/toast";
 import { arabicError } from "@/lib/auth/errors";
 import { createClient } from "@/lib/supabase/client";
 
 export function LoginForm({ configured }: { configured: boolean }) {
   const t = useTranslations("auth");
   const app = useTranslations("app");
-  const toast = useToast();
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <AuthCard title={app("name")} subtitle={app("tagline")}>
@@ -26,32 +23,48 @@ export function LoginForm({ configured }: { configured: boolean }) {
         className="grid gap-3"
         onSubmit={async (event) => {
           event.preventDefault();
+          setError(null);
           if (!configured) {
-            toast.push({ title: t("devNotConnected"), tone: "danger" });
+            setError(t("devNotConnected"));
             return;
           }
           if (password.length < 10) {
-            toast.push({ title: t("passwordTooShort"), tone: "danger" });
+            setError(t("passwordTooShort"));
             return;
           }
           setPending(true);
-          const supabase = createClient();
-          const { error } = await supabase.auth.signInWithPassword({ email, password });
-          setPending(false);
-          if (error) {
-            toast.push({
-              title: arabicError({ message: error.message, code: error.code }),
-              tone: "danger",
+          try {
+            const supabase = createClient();
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+              email: email.trim(),
+              password,
             });
-            return;
+            if (signInError) {
+              setError(arabicError({ message: signInError.message, code: signInError.code }));
+              setPending(false);
+              return;
+            }
+            // Hard navigation so middleware sees the new session cookies immediately.
+            window.location.assign("/");
+          } catch {
+            setError(t("loginFailed"));
+            setPending(false);
           }
-          router.refresh();
-          router.push("/");
         }}
       >
         <label className="grid gap-1 text-sm font-medium">
           {t("email")}
-          <Input type="email" autoComplete="username" value={email} onChange={(event) => setEmail(event.target.value)} required />
+          <Input
+            type="email"
+            autoComplete="username"
+            value={email}
+            onChange={(event) => {
+              setEmail(event.target.value);
+              setError(null);
+            }}
+            required
+            disabled={pending}
+          />
         </label>
         <label className="grid gap-1 text-sm font-medium">
           {t("password")}
@@ -59,11 +72,22 @@ export function LoginForm({ configured }: { configured: boolean }) {
             type="password"
             autoComplete="current-password"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={(event) => {
+              setPassword(event.target.value);
+              setError(null);
+            }}
             required
+            disabled={pending}
           />
         </label>
-        <Button type="submit" disabled={pending}>{t("login")}</Button>
+        {error ? (
+          <p role="alert" className="rounded-[10px] border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
+            {error}
+          </p>
+        ) : null}
+        <Button type="submit" disabled={pending} aria-busy={pending}>
+          {pending ? t("loggingIn") : t("login")}
+        </Button>
       </form>
       <Link href="/forgot-password" className="mt-4 inline-block text-sm text-link">
         {t("forgotPassword")}
