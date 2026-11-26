@@ -29,6 +29,12 @@ export function arabicError(error: { message?: string; code?: string } | null | 
   if (message.includes("products_category_id_fkey")) {
     return "اختر فئة صالحة من القائمة";
   }
+  if (message.includes("product_needs_image")) return "ارفع صورة واحدة على الأقل قبل التفعيل";
+  if (message.includes("product_not_deletable")) return "لا يمكن حذف منتج محجوز أو مباع";
+  if (message.includes("product_has_sales")) return "المنتج مرتبط بعمليات بيع، عطّله بدل الحذف";
+  if (message.includes("product_not_activatable")) return "لا يمكن تفعيل منتج محجوز أو مباع";
+  if (message.includes("unit_unavailable")) return "المنتج غير متاح للبيع حاليًا";
+  if (message.includes("customer_required")) return "اسم العميل ورقم هاتفه مطلوبان";
   if (message.includes("already registered") || message.includes("already been registered")) {
     return "هذا البريد مسجّل بالفعل";
   }

@@ -97,7 +97,7 @@ export async function saveProductAction(input: {
 }) {
   if (!hasPublicEnv()) return offline;
   const supabase = await db();
-  const row = {
+  const fields = {
     name: input.name.trim(),
     description: input.description.trim() || null,
     category_id: input.categoryId,
@@ -108,12 +108,55 @@ export async function saveProductAction(input: {
     commission_value: input.commissionValue,
     product_type: input.productType,
     allow_piece_sale: input.productType === "set" && input.allowPieceSale,
-    status: "inactive" as const,
   };
   const result = input.id
-    ? await supabase.from("products").update(row).eq("id", input.id).select("id").single()
-    : await supabase.from("products").insert(row).select("id").single();
+    ? await supabase.from("products").update(fields).eq("id", input.id).select("id").single()
+    : await supabase
+        .from("products")
+        .insert({ ...fields, status: "inactive" as const })
+        .select("id")
+        .single();
   return result.error ? { ok: false as const, error: arabicError(result.error) } : { ok: true as const, id: result.data.id as string };
+}
+
+export async function activateProductAction(id: string): Promise<ActionResult> {
+  if (!hasPublicEnv()) return offline;
+  const supabase = await db();
+  const { error } = await supabase.rpc("activate_product", { product_id: id });
+  return error ? { ok: false, error: arabicError(error) } : { ok: true };
+}
+
+export async function archiveProductAction(id: string): Promise<ActionResult> {
+  if (!hasPublicEnv()) return offline;
+  const supabase = await db();
+  const { error } = await supabase.rpc("archive_product", { product_id: id });
+  return error ? { ok: false, error: arabicError(error) } : { ok: true };
+}
+
+export async function deleteProductAction(id: string): Promise<ActionResult> {
+  if (!hasPublicEnv()) return offline;
+  const supabase = await db();
+  const { data, error } = await supabase.rpc("delete_product", { product_id: id });
+  if (error) return { ok: false, error: arabicError(error) };
+  const paths = Array.isArray(data) ? (data as string[]) : [];
+  if (paths.length > 0) {
+    await supabase.storage.from("product-images").remove(paths);
+    await supabase.storage.from("product-videos").remove(paths);
+  }
+  return { ok: true };
+}
+
+export async function deleteProductMediaAction(mediaId: string): Promise<ActionResult> {
+  if (!hasPublicEnv()) return offline;
+  const supabase = await db();
+  const { data, error } = await supabase.rpc("delete_product_media", { media_id: mediaId });
+  if (error) return { ok: false, error: arabicError(error) };
+  const paths = Array.isArray(data) ? (data as string[]) : [];
+  for (const path of paths) {
+    await supabase.storage.from("product-images").remove([path]);
+    await supabase.storage.from("product-videos").remove([path]);
+  }
+  return { ok: true };
 }
 
 export async function duplicateProductAction(id: string): Promise<ActionResult> {

@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ProductTools } from "@/components/catalog/product-tools";
+import { ProductWorkspace } from "@/components/catalog/product-workspace";
 import { hasPublicEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
@@ -8,12 +7,19 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   if (!hasPublicEnv()) notFound();
   const { id } = await params;
   const supabase = await createClient();
-  const { data: product } = await supabase
-    .from("products")
-    .select("id, name, code, public_code, status, list_price, description")
-    .eq("id", id)
-    .maybeSingle();
+  const [{ data: product }, { data: categories }, { data: stores }] = await Promise.all([
+    supabase
+      .from("products")
+      .select(
+        "id, name, description, code, public_code, status, list_price, min_price, commission_type, commission_value, product_type, allow_piece_sale, category_id, store_id",
+      )
+      .eq("id", id)
+      .maybeSingle(),
+    supabase.from("categories").select("id, name_ar, parent_id").eq("is_active", true),
+    supabase.from("stores").select("id, name").eq("is_active", true),
+  ]);
   if (!product) notFound();
+
   const { data: media } = await supabase
     .from("product_media")
     .select("id, kind, storage_path, is_primary, sort_order")
@@ -36,21 +42,28 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   );
 
   return (
-    <div className="grid gap-4">
-      <Link href="/products" className="text-sm text-link">
-        العودة للمنتجات
-      </Link>
-      <section className="rounded-xl border border-border bg-surface p-4">
-        <h2 className="text-xl font-semibold">{product.name}</h2>
-        <p className="text-sm text-muted">
-          {product.public_code} · {product.code} · {product.status}
-        </p>
-        {product.description ? <p className="mt-2 text-sm">{product.description}</p> : null}
-        {withUrls.length === 0 ? (
-          <p className="mt-3 text-sm text-danger">ناقص صور. التفعيل يحتاج صورة واحدة على الأقل — ارفعها من القسم التالي.</p>
-        ) : null}
-      </section>
-      <ProductTools productId={product.id} media={withUrls} />
-    </div>
+    <ProductWorkspace
+      product={{
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        code: product.code,
+        public_code: product.public_code,
+        status: product.status,
+        list_price: Number(product.list_price),
+        min_price: product.min_price == null ? null : Number(product.min_price),
+        commission_type: product.commission_type,
+        commission_value: Number(product.commission_value),
+        product_type: product.product_type,
+        allow_piece_sale: Boolean(product.allow_piece_sale),
+        category_id: product.category_id,
+        store_id: product.store_id,
+      }}
+      media={withUrls}
+      categories={(categories ?? [])
+        .filter((category) => category.parent_id)
+        .map((category) => ({ id: category.id, label: category.name_ar }))}
+      stores={(stores ?? []).map((store) => ({ id: store.id, label: store.name }))}
+    />
   );
 }

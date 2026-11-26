@@ -21,9 +21,11 @@ type MediaRow = {
 export function ProductTools({
   productId,
   media,
+  onDeleteMedia,
 }: {
   productId: string;
   media: MediaRow[];
+  onDeleteMedia?: (mediaId: string) => Promise<void> | void;
 }) {
   const t = useTranslations("product");
   const toast = useToast();
@@ -164,7 +166,21 @@ export function ProductTools({
               )}
               <div className="flex items-center justify-between gap-2 px-3 py-2 text-xs">
                 <span>{item.kind === "image" ? t("images") : t("video")}</span>
-                {item.is_primary ? <span className="text-primary">{t("primaryImage")}</span> : null}
+                <span className="flex items-center gap-2">
+                  {item.is_primary ? <span className="text-primary">{t("primaryImage")}</span> : null}
+                  {onDeleteMedia ? (
+                    <button
+                      type="button"
+                      className="text-danger"
+                      onClick={() => {
+                        if (!window.confirm("حذف هذا الملف؟")) return;
+                        void onDeleteMedia(item.id);
+                      }}
+                    >
+                      حذف
+                    </button>
+                  ) : null}
+                </span>
               </div>
             </article>
           ))}
