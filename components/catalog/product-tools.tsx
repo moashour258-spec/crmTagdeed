@@ -1,20 +1,101 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { confirmUploadAction, duplicateProductAction, prepareUploadAction } from "@/app/(workspace)/catalog/actions";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
+import { mediaLimitError, type MediaKind } from "@/lib/catalog/media-bytes";
 import { createClient } from "@/lib/supabase/client";
 
-export function ProductTools({ productId }: { productId: string }) {
+type MediaRow = {
+  id: string;
+  kind: MediaKind;
+  storage_path: string;
+  is_primary: boolean;
+  sort_order: number;
+  url?: string | null;
+};
+
+export function ProductTools({
+  productId,
+  media,
+}: {
+  productId: string;
+  media: MediaRow[];
+}) {
+  const t = useTranslations("product");
   const toast = useToast();
   const router = useRouter();
-  const [progress, setProgress] = useState<number | null>(null);
+  const [progress, setProgress] = useState<string | null>(null);
+  const [dragging, setDragging] = useState(false);
+
+  const counts = useMemo(
+    () => ({
+      images: media.filter((item) => item.kind === "image").length,
+      videos: media.filter((item) => item.kind === "video").length,
+    }),
+    [media],
+  );
+
+  async function uploadFiles(files: FileList | File[]) {
+    const list = Array.from(files);
+    if (list.length === 0) return;
+    let imageCount = counts.images;
+    let videoCount = counts.videos;
+
+    for (const file of list) {
+      const kind: MediaKind = file.type.startsWith("video/") ? "video" : "image";
+      const limit = mediaLimitError(kind, file.size, imageCount, videoCount);
+      if (limit) {
+        toast.push({ title: limit, tone: "danger" });
+        continue;
+      }
+      setProgress(`${t("uploading")} ${file.name}`);
+      const prepared = await prepareUploadAction(productId, file.type, file.size);
+      if (!prepared.ok) {
+        toast.push({ title: prepared.error, tone: "danger" });
+        continue;
+      }
+      const supabase = createClient();
+      const uploaded = await supabase.storage
+        .from(prepared.bucket)
+        .uploadToSignedUrl(prepared.path, prepared.token, file);
+      if (uploaded.error) {
+        toast.push({ title: t("uploadFailed"), tone: "danger" });
+        continue;
+      }
+      const confirmed = await confirmUploadAction({
+        productId,
+        bucket: prepared.bucket,
+        path: prepared.path,
+        mime: file.type,
+        size: file.size,
+        duration: null,
+        posterPath: null,
+      });
+      if (!confirmed.ok) {
+        toast.push({ title: confirmed.error, tone: "danger" });
+        continue;
+      }
+      if (kind === "image") imageCount += 1;
+      else videoCount += 1;
+      toast.push({ title: `تم رفع ${file.name}`, tone: "success" });
+    }
+    setProgress(null);
+    router.refresh();
+  }
 
   return (
-    <section className="grid gap-3 rounded-xl border border-border bg-surface p-4">
-      <div className="flex flex-wrap gap-2">
+    <section className="grid gap-4 rounded-xl border border-border bg-surface p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h3 className="font-semibold">{t("uploadMedia")}</h3>
+          <p className="text-sm text-muted">
+            {counts.images} {t("imagesCount")} · {counts.videos} {t("videosCount")}
+          </p>
+        </div>
         <Button
           variant="secondary"
           onClick={async () => {
@@ -26,48 +107,69 @@ export function ProductTools({ productId }: { productId: string }) {
             router.push(`/products/${result.id}`);
           }}
         >
-          تكرار المنتج
+          {t("duplicate")}
         </Button>
       </div>
-      <label className="grid gap-2 text-sm">
-        رفع صورة أو فيديو
+
+      <label
+        className={`grid cursor-pointer gap-2 rounded-xl border border-dashed px-4 py-8 text-center transition-colors ${
+          dragging ? "border-primary bg-primary/10" : "border-border bg-surface-2/40"
+        }`}
+        onDragEnter={(event) => {
+          event.preventDefault();
+          setDragging(true);
+        }}
+        onDragOver={(event) => event.preventDefault()}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(event) => {
+          event.preventDefault();
+          setDragging(false);
+          void uploadFiles(event.dataTransfer.files);
+        }}
+      >
+        <span className="text-sm font-medium">{t("dropHere")}</span>
+        <span className="text-xs text-muted">{t("videoHelp")}</span>
         <input
           type="file"
+          className="sr-only"
+          multiple
           accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime"
-          onChange={async (event) => {
-            const file = event.target.files?.[0];
-            if (!file) return;
-            const prepared = await prepareUploadAction(productId, file.type, file.size);
-            if (!prepared.ok) {
-              toast.push({ title: prepared.error, tone: "danger" });
-              return;
-            }
-            setProgress(10);
-            const supabase = createClient();
-            const uploaded = await supabase.storage.from(prepared.bucket).uploadToSignedUrl(prepared.path, prepared.token, file);
-            if (uploaded.error) {
-              setProgress(null);
-              toast.push({ title: "فشل الرفع، حاول مرة أخرى", tone: "danger" });
-              return;
-            }
-            setProgress(80);
-            const confirmed = await confirmUploadAction({
-              productId,
-              bucket: prepared.bucket,
-              path: prepared.path,
-              mime: file.type,
-              size: file.size,
-              duration: null,
-              posterPath: null,
-            });
-            setProgress(null);
-            if (!confirmed.ok) toast.push({ title: confirmed.error, tone: "danger" });
-            else router.refresh();
+          onChange={(event) => {
+            const files = event.target.files;
+            if (files) void uploadFiles(files);
+            event.target.value = "";
           }}
         />
       </label>
-      {progress != null ? <p className="text-sm text-muted">جاري الرفع... {progress}%</p> : null}
-      <p className="text-sm text-muted">الفيديو حتى 50 ميجا بصيغة MP4 أو WebM أو MOV. على الآيفون سجّل بإعداد Most Compatible.</p>
+
+      {progress ? <p className="text-sm text-muted">{progress}</p> : null}
+
+      {media.length === 0 ? (
+        <p className="text-sm text-danger">{t("missingImages")}. التفعيل يحتاج صورة واحدة على الأقل.</p>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {media.map((item) => (
+            <article key={item.id} className="overflow-hidden rounded-xl border border-border bg-surface-2">
+              {item.url ? (
+                item.kind === "image" ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.url} alt="" className="aspect-video w-full object-cover" />
+                ) : (
+                  <video src={item.url} controls className="aspect-video w-full bg-black" />
+                )
+              ) : (
+                <div className="flex aspect-video items-center justify-center text-sm text-muted">
+                  {item.kind === "image" ? t("images") : t("video")}
+                </div>
+              )}
+              <div className="flex items-center justify-between gap-2 px-3 py-2 text-xs">
+                <span>{item.kind === "image" ? t("images") : t("video")}</span>
+                {item.is_primary ? <span className="text-primary">{t("primaryImage")}</span> : null}
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

@@ -20,6 +20,15 @@ export function arabicError(error: { message?: string; code?: string } | null | 
   ) {
     return "تعذر إنشاء الحساب. تحقق من البريد وحاول مرة أخرى.";
   }
+  if (
+    message.includes("products_store_id_fkey") ||
+    (message.includes("store_id") && message.includes("foreign key"))
+  ) {
+    return "اختر مخزنًا صالحًا أو أضف مخزنًا من صفحة المخازن";
+  }
+  if (message.includes("products_category_id_fkey")) {
+    return "اختر فئة صالحة من القائمة";
+  }
   if (message.includes("already registered") || message.includes("already been registered")) {
     return "هذا البريد مسجّل بالفعل";
   }

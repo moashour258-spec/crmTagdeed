@@ -146,6 +146,20 @@ export async function commitImportAction(rows: ImportRow[], fileName: string) {
 export async function prepareUploadAction(productId: string, mime: string, size: number) {
   if (!hasPublicEnv()) return { ok: false as const, error: offlineError };
   const kind = mime.startsWith("video/") ? "video" : "image";
+  const allowedImage = ["image/jpeg", "image/png", "image/webp"];
+  const allowedVideo = ["video/mp4", "video/webm", "video/quicktime"];
+  if (kind === "image" && !allowedImage.includes(mime)) {
+    return { ok: false as const, error: "نوع الملف غير مدعوم" };
+  }
+  if (kind === "video" && !allowedVideo.includes(mime)) {
+    return { ok: false as const, error: "نوع الملف غير مدعوم" };
+  }
+  if (kind === "image" && size > 5 * 1024 * 1024) {
+    return { ok: false as const, error: "حجم الصورة أكبر من 5 ميجا" };
+  }
+  if (kind === "video" && size > 50 * 1024 * 1024) {
+    return { ok: false as const, error: "حجم الفيديو أكبر من 50 ميجا" };
+  }
   const bucket = kind === "video" ? "product-videos" : "product-images";
   const path = `products/${productId}/${crypto.randomUUID()}`;
   const supabase = await db();
