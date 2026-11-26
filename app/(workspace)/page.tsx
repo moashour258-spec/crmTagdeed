@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Bars } from "@/components/dashboard/bars";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -38,7 +39,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     const stats = parseSalesStats(data);
     return (
       <div className="grid gap-6">
-        <a
+        <Link
           href="/sales/catalog"
           className="rounded-xl border border-border bg-surface p-4 transition-colors hover:bg-surface-2"
         >
@@ -48,7 +49,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
               ? `فيه ${availableCount} منتج جاهز — اضغط للعرض والحجز أو الإضافة للسلة.`
               : "لا توجد منتجات متاحة الآن. لما المدير يفعّل منتجًا هيظهر هنا."}
           </p>
-        </a>
+        </Link>
         <FilterForm preset={preset} from={one(params.from)} to={one(params.to)} />
         <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <StatCard label="قطع مباعة" value={String(stats.productsSold)} />
