@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { destination } from "@/lib/auth/gates";
 import { generatePassword, isStrongPassword } from "@/lib/auth/password";
-import { phoneSchema, profileSchema } from "@/lib/validators/profile";
+import { phoneSchema, profileSchema, userDraftSchema } from "@/lib/validators/profile";
 
 const active = {
   status: "active" as const,
@@ -71,5 +71,18 @@ describe("phase 1 gates", () => {
         nationalId: "29001010100011",
       }).success,
     ).toBe(true);
+  });
+
+  it("lowercases emails when provisioning a user draft", () => {
+    const parsed = userDraftSchema.safeParse({
+      fullName: "Ahmed Ashour",
+      email: "Ahmedashourmhmd520@Gmail.com",
+      role: "sales",
+      method: "random_password",
+    });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.email).toBe("ahmedashourmhmd520@gmail.com");
+    }
   });
 });

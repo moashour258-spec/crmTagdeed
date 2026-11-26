@@ -13,6 +13,13 @@ export function arabicError(error: { message?: string; code?: string } | null | 
   ) {
     return "تسجيل الدخول بالبريد غير مفعّل حالياً. تواصل مع المدير.";
   }
+  if (
+    message.includes("Database error creating new user") ||
+    message.includes("unexpected_failure") ||
+    error?.code === "unexpected_failure"
+  ) {
+    return "تعذر إنشاء الحساب. تحقق من البريد وحاول مرة أخرى.";
+  }
   if (message.includes("already registered") || message.includes("already been registered")) {
     return "هذا البريد مسجّل بالفعل";
   }

@@ -12,7 +12,12 @@ export const profileSchema = z.object({
 
 export const userDraftSchema = z.object({
   fullName: z.string().trim().min(3).max(120),
-  email: z.string().trim().email(),
+  // Auth stores emails lowercased; mixed-case provisions break handle_new_user.
+  email: z
+    .string()
+    .trim()
+    .email()
+    .transform((value) => value.toLowerCase()),
   role: z.enum(["admin", "sales"]),
   method: z.enum(["invitation", "random_password", "custom_password"]),
   password: z.string().optional(),
