@@ -8,6 +8,7 @@ import { AuthCard } from "@/components/auth/auth-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
+import { arabicError } from "@/lib/auth/errors";
 import { createClient } from "@/lib/supabase/client";
 
 export function LoginForm({ configured }: { configured: boolean }) {
@@ -38,7 +39,10 @@ export function LoginForm({ configured }: { configured: boolean }) {
           const { error } = await supabase.auth.signInWithPassword({ email, password });
           setPending(false);
           if (error) {
-            toast.push({ title: t("invalidCredentials"), tone: "danger" });
+            toast.push({
+              title: arabicError({ message: error.message, code: error.code }),
+              tone: "danger",
+            });
             return;
           }
           router.refresh();

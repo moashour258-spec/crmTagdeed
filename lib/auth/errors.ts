@@ -6,6 +6,13 @@ export function arabicError(error: { message?: string; code?: string } | null | 
   if (message.includes("last_admin")) return "لا يمكن تعطيل آخر مدير نشط";
   if (message.includes("super_admin_immutable")) return "لا يمكن تعديل المدير العام";
   if (message.includes("Invalid login credentials")) return "البريد أو كلمة المرور غير صحيحة";
+  if (
+    message.includes("Email logins are disabled") ||
+    message.includes("email_provider_disabled") ||
+    error?.code === "email_provider_disabled"
+  ) {
+    return "تسجيل الدخول بالبريد غير مفعّل حالياً. تواصل مع المدير.";
+  }
   if (message.includes("already registered") || message.includes("already been registered")) {
     return "هذا البريد مسجّل بالفعل";
   }
