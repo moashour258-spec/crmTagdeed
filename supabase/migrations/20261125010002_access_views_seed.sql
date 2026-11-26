@@ -743,8 +743,31 @@ begin
   end if;
 end $$;
 
-alter table storage.buckets enable row level security;
-alter table storage.objects enable row level security;
+-- On hosted Supabase the storage tables already exist and are owned by
+-- supabase_storage_admin, so only enable RLS / grants when we own them.
+do $$
+begin
+  if exists (
+    select 1
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'storage'
+      and c.relname = 'buckets'
+      and c.relowner = (select oid from pg_roles where rolname = current_user)
+  ) then
+    execute 'alter table storage.buckets enable row level security';
+  end if;
+  if exists (
+    select 1
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'storage'
+      and c.relname = 'objects'
+      and c.relowner = (select oid from pg_roles where rolname = current_user)
+  ) then
+    execute 'alter table storage.objects enable row level security';
+  end if;
+end $$;
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values
@@ -768,8 +791,32 @@ create policy tajdeed_media_admin_all on storage.objects
   );
 
 grant usage on schema storage to authenticated, service_role;
-grant select, insert, update, delete on storage.objects to authenticated, service_role;
-grant select on storage.buckets to authenticated, service_role;
+do $$
+begin
+  if exists (
+    select 1
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'storage'
+      and c.relname = 'objects'
+      and has_table_privilege(current_user, 'storage.objects', 'INSERT')
+  ) then
+    grant select, insert, update, delete on storage.objects to authenticated, service_role;
+  end if;
+  if exists (
+    select 1
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'storage' and c.relname = 'buckets'
+  ) then
+    begin
+      grant select on storage.buckets to authenticated, service_role;
+    exception
+      when insufficient_privilege then
+        null;
+    end;
+  end if;
+end $$;
 
 grant usage on schema public to anon, authenticated, service_role;
 grant select, insert, update, delete on all tables in schema public to authenticated, service_role;
