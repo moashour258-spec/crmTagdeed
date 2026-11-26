@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { destination, type Gate } from "@/lib/auth/gates";
+import { publicSupabaseKey } from "@/lib/env";
 
 type GateRow = {
   status: "active" | "inactive";
@@ -12,14 +13,15 @@ type GateRow = {
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  const supabaseKey = publicSupabaseKey();
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !supabaseKey) {
     return redirectTo(request, destination(pathname, null));
   }
 
   let response = NextResponse.next({ request });
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    supabaseKey,
     {
       cookies: {
         getAll() {

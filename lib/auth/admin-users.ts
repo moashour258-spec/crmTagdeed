@@ -2,7 +2,7 @@ import "server-only";
 import { decryptNationalId, encryptNationalId, hashNationalId, maskNationalId } from "@/lib/crypto/national-id";
 import { arabicError } from "@/lib/auth/errors";
 import { generatePassword, isStrongPassword } from "@/lib/auth/password";
-import { getServerEnv, hasServerEnv } from "@/lib/env";
+import { getServerEnv, hasPublicEnv, hasServerEnv } from "@/lib/env";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { profileSchema, userDraftSchema } from "@/lib/validators/profile";
@@ -174,7 +174,7 @@ export async function saveOwnProfile(input: unknown): Promise<ActionResult> {
 }
 
 export async function finishForcedPasswordChange(): Promise<ActionResult> {
-  if (!hasPublicEnvSafe()) return notReady;
+  if (!hasPublicEnv()) return notReady;
   const { supabase } = await actorClient();
   const { error } = await supabase.rpc("complete_password_change");
   if (error) return { ok: false, error: arabicError(error) };
@@ -183,12 +183,8 @@ export async function finishForcedPasswordChange(): Promise<ActionResult> {
 }
 
 export async function markNoticeRead(id: string): Promise<ActionResult> {
-  if (!hasPublicEnvSafe()) return notReady;
+  if (!hasPublicEnv()) return notReady;
   const { supabase } = await actorClient();
   const { error } = await supabase.rpc("mark_notification_read", { notification_id: id });
   return error ? { ok: false, error: arabicError(error) } : { ok: true };
-}
-
-function hasPublicEnvSafe() {
-  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 }
